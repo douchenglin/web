@@ -1,0 +1,136 @@
+1、面向对象的编程思维面向对象思维主张的是：团队---配合---分工---协作，将大问题拆分成诺干个小问题，并试图用分工协作来完成。这也是我们长说的一句话“高内聚、低耦合”
+
+2、淡入淡出显示隐藏的实现思想：可通过setTimeout和transform结合实现，首先使用transform实现淡入淡出的效果，然后在setTimeout中实现最终的显示隐藏。或者使用animation（css3）改变opacity
+transform实现动画，只是中间过程，最后结果由setTimeout实现
+
+3、树形结构思想，树转化为森林-->遍历森林-->遍历树（同时也是控制器）
+function findParents(path, match, root) {
+  if (root) {
+    if (match(root)) {
+      return true;
+    } else {
+      if (Array.isArray(root.children)) {
+        path.push(root);
+        for (let child of root.children) {
+          if (findParents(path, match, child) === true) {
+            return true;
+          }
+        }
+        path.pop();
+      }
+    }
+  }
+}
+
+function findParentsFromForest(forest, match) {
+  for (let tree of forest || []) {
+    const path = [];
+    if (findParents(path, match, tree)) {
+      return path;
+    }
+  }
+}
+
+const path = findParentsFromForest(forest, item => {
+    return item.zcflbm === '140101';
+});
+
+4、防抖
+// 防抖
+function debounce(fn, wait) {    
+    var timeout = null;    
+    return function() {        
+        if(timeout !== null)   clearTimeout(timeout);        
+        timeout = setTimeout(fn, wait);    
+    }
+}
+// 处理函数
+function handle() {    
+    console.log(Math.random()); 
+}
+// 滚动事件
+window.addEventListener('scroll', debounce(handle, 1000));
+
+5、复制到粘贴板
+var textareaEl = document.createElement('textarea');
+    textareaEl.setAttribute('readonly', 'readonly'); // 防止手机上弹出软键盘
+    textareaEl.innerText = '1231231232';
+    document.body.appendChild(textareaEl);
+    textareaEl.select();
+    document.execCommand('copy');
+    document.body.removeChild(textareaEl);
+    console.log('复制成功');
+
+6、事件loop
+new Promise(resolve => {
+    console.log(1);
+    setTimeout(() => {resolve(100)}, 0);
+}).then(value => {
+    new Promise(resolve => {
+        console.log(2);
+        setTimeout(() => {
+            console.log(3); 
+            resolve(101);
+        }, 0);
+    }).then((value) => {
+        console.log(4);
+        return value;
+    }).then(() => {
+        console.log(5);
+    });
+}).then(() => {
+    console.log(6);
+});
+
+7、嵌套结构解构赋值
+let obj = {
+  p: [
+    'Hello',
+    { y: 'World' }
+  ]
+};
+
+let { p, p: [x, { y }] } = obj; //第二个p是模式
+x // "Hello"
+y // "World"
+p // ["Hello", {y: "World"}]
+
+8、深拷贝
+function deepCopy(data) {
+  let obj = {}, arr = [];
+  let type = checkType(data);
+  if(typeof data === 'object'){
+    if(type === 'object'){
+      for (let prop in data){
+        obj[prop] = deepCopy(data[prop]);
+      }
+      return obj;
+    } else if (type === 'array'){
+      data.forEach(item => {
+        arr.push(deepCopy(item));
+      });
+      return arr;
+    } else {
+      return data;
+    }
+  } else {
+    return data;
+  }
+};
+function checkType(data) {
+  let typeObj = {
+    '[object Undefined]': 'undefined',
+    '[object Null]': 'null',
+    '[object String]': 'string',
+    '[object Object]': 'object',
+    '[object Boolean]': 'boolean',
+    '[object Number]': 'number',
+    '[object Symbol]': 'symbol',
+    '[object Array]': 'array',
+    '[object Function]': 'function',
+    '[object Date]': 'date',
+    '[object RegExp]': 'regexp',
+  };
+  let type = Object.prototype.toString.call(data);
+  return typeObj[type];
+};

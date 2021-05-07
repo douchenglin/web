@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8>
+<title>js基础</title>
+
+</head>
+<body style="height: 1000px;">
+<!---->
+<button id="btn">按钮</button>
+
+</body>
+<script>
+    ///1、闭包
+    //闭包的理解： 可访问函数里变量的函数为闭包
+    //闭包的用途：创建局部变量，
+    //缺点：创建的变量是一直存在的不会销毁
+    //考察的知识点：作用域，变量提升
+    function foo(){
+        var local = 1
+        return function(){
+            console.log(local)
+        }
+    }
+    var func = foo()
+    // func()
+
+    //2、原型原型链
+    /*
+    https://segmentfault.com/a/1190000018308979
+    原型
+    js中万物皆对象，对象分为普通对象和函数对象。
+    1.每个对象都具有一个名为__proto__的属性；
+    2.每个构造函数（构造函数标准为大写开头，如Function()，Object()等等JS中自带的构造函数，以及自己创建的）都具有一个名为prototype的方法（注意：既然是方法，那么就是一个对象（JS中函数同样是对象），所以prototype同样带有__proto__属性）；
+    3.每个对象的__proto__属性指向自身构造函数的prototype；
+    4.每个对象都有 、__proto__ 属性，但只有函数对象才有 prototype 属性
+    原型链
+    在JavaScript 中，每个对象都有一个指向它的原型（prototype）对象的内部链接。这个原型对象又有自己的原型，
+    直到某个对象的原型为 null 为止（也就是不再有原型指向），组成这条链的最后一环。这种一级一级的链结构就称为原型链（prototype chain）。
+    <prototype与__proto__>
+
+
+    在Javascript中，每个函数都有一个原型属性prototype指向自身的原型，而由这个函数创建的对象也有一个__proto__属性指向这个原型，
+    而函数的原型是一个对象（函数点prototype也是一个普通对象，Function.prototype除外,它是函数对象，但它很特殊，他没有prototype属性），
+    所以这个对象也会有一个__proto__指向自己的原型，这样逐层深入直到Object对象的原型，这样就形成了原型链。普通对象没有prototype，
+    但有__proto__属性。
+    */
+    function Person(name, age, job) {
+        this.name = name;
+        this.age = age;
+        this.job = job;
+        this.sayName = function() { alert(this.name) } 
+    }
+    var person1 = new Person('Zaxlct', 28, 'Software Engineer');
+    var person2 = new Person('Mick', 23, 'Doctor');
+    function add() {}
+    // console.log(person1.__proto__)
+    // console.log(Person.prototype)
+    // console.log(Function.prototype)
+
+    //防抖
+    /*
+        原理：每次触发事件时设置一个延时时间，并且取消之前的延时
+    */
+
+    function debounce(fn,delay){
+        var timer = null
+        
+        return function(){
+            clearTimeout(timer)
+            
+            timer = setTimeout(()=>{
+                fn.apply(this,arguments) //绑定this指向，防止this丢失
+            },delay)
+        }
+    }
+
+    function handle(){
+        console.log(this)
+        console.log('防抖：'+Math.random())
+    }
+
+    /*
+        节流
+        原理：每次触发事件时，如果当前有等待执行的延时函数则直接返回
+    */
+
+    function throttle(fn,delay){
+        let canRun = true;
+        return function(){
+            if(!canRun) return 
+            canRun = false;
+            setTimeout(()=>{
+                fn.apply(this,arguments)
+                canRun = true
+            },delay)
+        }
+
+    }
+
+    function handleThrottle(){
+        console.log(this)
+        console.log('节流'+Math.random())
+    }
+
+    document.getElementById("btn").addEventListener("click", throttle(handleThrottle,1000));;
+
+    /*
+        深拷贝
+
+    */
+
+    function deepCopy(data){
+        let obj = {},arr = [];
+        let type =  checkType(data)
+        if(typeof data === 'object'){
+
+            if(type=== 'object'){
+                for(let k in data){
+                    obj[k] = deepCopy(data[k]);
+                }
+                return obj;
+            }else if(type=== 'array'){
+                data.forEach(res=>{
+                    arr.push(deepCopy(res))
+                })
+                return arr;
+            }else{
+                return data
+            }
+
+        }else{
+            return data
+        }
+
+    }
+
+    function checkType(data){ //检查数据类型
+
+        let typeObj = {
+            '[object Undefined]':'undefined',
+            '[object Null]':'null',
+            '[object String]':'string',
+            '[object Number]':'number',
+            '[object Boolean]':'boolean',
+            '[object Symbol]':'symbol',
+            '[object Array]':'array',
+            '[object Object]':'object',
+            '[object Function]':'function',
+            '[object Date]':'date',
+            '[object RegExp]': 'regexp',
+        }
+        let type = Object.prototype.toString.call(data)
+        return typeObj[type]
+
+    }
+
+    let obj = {
+        ad:'asdf',
+        wef:[1,2,2,3,4,],
+        reggre:{
+            asdf:[1,2,3,4,5]
+        }
+    }
+    let copy = deepCopy(obj)
+    console.log( Object.prototype.toString())
+</script>
+</html>
